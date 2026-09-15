@@ -1,0 +1,20 @@
+{
+  "created_utc": "2026-09-15T07:40:02.622928+00:00",
+  "suite": "programs",
+  "smoke": false,
+  "wall_seconds": 314.27587067900004,
+  "protocol_sha256": "fc3b0a6ccb2b2235f635c2095cfe08c60fcce765bff2ce0ee899292e80ccca3f",
+  "source_sha256": {
+    "src/__init__.py": "cc11a4a89eece2086d499451460adf4b1f95c367834e1d9905271165a46e13f1",
+    "src/programs.py": "d9be258da7204c0581dc576657a97e130517274739f29d3d90090430a039d8d8",
+    "src/theory.py": "6a022b9d48d4ecef667806db0b7d4baeb5c6fbe8ec7941df9efcc38f6d0b7d4f"
+  },
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "numpy": "2.3.5",
+  "scipy": "1.17.0",
+  "numba": "0.65.1",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "cpu_count": 5,
+  "gpu_used": false,
+  "threading_note": "Single-process CPU; no parallel=True or GPU kernels"
+}
