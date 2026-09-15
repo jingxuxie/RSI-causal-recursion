@@ -1,0 +1,239 @@
+\documentclass{article}
+\usepackage{iclr2027_conference,times}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools,booktabs,graphicx,microtype,xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{etoolbox}
+\newif\ifresearchdraft
+\researchdrafttrue
+\ifresearchdraft
+\makeatletter
+\patchcmd{\@maketitle}{Paper under double-blind review}{Research draft; not yet submitted}{}{}
+\makeatother
+\fi
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\TV}{\operatorname{TV}}
+\newcommand{\KL}{\operatorname{KL}}
+\newcommand{\kl}{\operatorname{kl}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\ind}{\mathbf 1}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\cU}{\mathcal U}
+\newcommand{\cH}{\mathcal H}
+\newcommand{\cS}{\mathcal S}
+\newcommand{\cP}{\mathcal P}
+\newcommand{\authorR}{\mathsf R}
+\newcommand{\authorF}{\mathsf F}
+\input{results_macros}
+\title{The Causal Recursion Dividend:\\Identifying Improvement of the Improver}
+\author{Anonymous authors}
+\begin{document}
+\maketitle
+\ifresearchdraft\lhead{Research draft in ICLR 2027 format; not submitted}\fi
+\begin{abstract}
+Increasing task performance does not by itself establish that a system has improved its improvement mechanism, or that recursively inheriting that mechanism was beneficial. We separate transferable mechanism gain from a comparator-specific \emph{causal recursion dividend}: downstream improvement capability after recursive development minus that after resource-matched fixed-author development. We characterize nonidentification from native performance-and-lineage summaries, and formulate fork-and-transplant audits that identify the two effects under explicit interface assumptions. For imperfect transplants, we derive sharp finite-state identification intervals under rectangular transition uncertainty, distinguish shared-history uncertainty from independent branch uncertainty, and prove an endpoint-audit detection boundary. With total contrast distortion bounded by $b$, uniformly detecting a true dividend $\gamma$ is impossible when $\gamma\leq2b$; above this boundary the minimax sample size scales as $(\gamma-2b)^{-2}\log(1/\delta)$. Development-level confidence bounds account for dependent descendants. Exact finite-state experiments exhibit positive, zero, and negative inheritance effects. In an independent Boolean-program repair study with 4,096 development runs per task family, recursive and fixed-author development both improve the improver, while all three recursion-dividend intervals fall within a prespecified one-percentage-point equivalence band. These conclusions concern a bounded rule-table search system, not general-purpose AI. The framework supports explicit claims about recursive inheritance without equating ordinary progress with improvement of the improver.
+\end{abstract}
+
+\section{Introduction}
+A self-modifying system can improve because it acquires a stronger task solver, a better proposal mechanism, a useful archive, or simply more opportunities to search. These explanations are not interchangeable. Even evidence that the final proposal mechanism outperforms its seed does not establish that \emph{letting improved mechanisms author later modifications} was responsible: a fixed external proposer may discover equally useful mechanisms.
+
+This distinction is increasingly relevant to systems that modify improvement scaffolding. STOP evolves an improver through self-application \citep{stop}; Darwin G\"odel Machine maintains an evolving archive of coding agents \citep{dgm}; Huxley--G\"odel Machine explicitly considers the productivity of descendants \citep{hgm}; and Hyperagents evaluates improvement potential and cross-task transfer \citep{hyperagents}. These works already motivate evaluating improvers and using fixed-mechanism controls. Our goal is not to rename those evaluations. It is to state precisely which causal claim an experiment identifies, which component separations that claim assumes, and how much ambiguity remains when those separations are imperfect.
+
+We distinguish two effects. A \emph{transferable mechanism gain} compares frozen improvers from standardized starting conditions. The \emph{recursion dividend} compares development regimes that differ in whether selected improvers take over subsequent authorship. The nonrecursive comparator is allowed to discover and retain better improvers. It is not restricted to leaving the seed unchanged.
+
+Our central result separates experimental noise from intervention ambiguity. In a bounded terminal-audit model, the gap between a true effect and twice the allowed contrast distortion determines whether uniform certification is possible at all. A finite-state robust audit refines crude worst-case distortion bounds using the actual locations and continuation values of possible mismatches. Both conclusions require an explicit causal interface; more samples cannot replace it.
+
+The mathematical ingredients include robust dynamic programming, bounded-mean concentration, and two-point testing. We identify these established tools rather than presenting them as new general methods. The contribution is their comparator-specific formulation and joint consequences for recursively inherited improvement mechanisms, together with an executable falsification-oriented audit. All proofs and counterexamples are provided. Our CPU experiments demonstrate both genuine inheritance effects in controlled systems and substantial mechanism gains without a practically large inheritance dividend in a small program-search system.
+
+\section{What effect is being measured?}\label{sec:setup}
+A system state contains a task solver $A$, an improvement mechanism $M$, and external history $H$. The experiment declares which code, parameters, and working state belong to each component. The evaluator and budget counter are protected. For task $x$, let $r_x(A)\in[0,1]$ denote externally specified utility. Let $\Psi_B(A,M,H;\xi)$ be the \emph{released} agent after the frozen mechanism $M$ operates with budget $B$ and randomness $\xi$. The mechanism may update ordinary working memory under fixed rules but does not rewrite its own implementation during this audit.
+
+For a prespecified distribution $\mu$ over $(x,A,H)$, define
+\begin{align}
+ V_B(M;\mu)&=\E_{(x,A,H)\sim\mu,\xi}[r_x(\Psi_B(A,M,H;\xi))],\label{eq:V}\\
+ D_B(M;\mu)&=V_B(M;\mu)-V_B(M_0;\mu).\label{eq:D}
+\end{align}
+The released agent is selected using only information available to the procedure. An oracle maximum over the latent true quality of all descendants is a different estimand. Our program experiment uses exact within-task evaluation; this simplifies selection rather than silently granting one method an oracle.
+
+\paragraph{The development intervention.}
+Both regimes begin from the same distribution of full initial states and have the same editing primitives, candidate language, evaluator, selection rule, and development allowance $C$. In \emph{recursive development} $\authorR$, a selected mechanism becomes the proposer of subsequent edits. In \emph{fixed-author development} $\authorF$, the original proposer $M_0$ remains active, but the evolving incumbent mechanism remains editable and can be retained as the final output. Subsequent histories may differ: they are effects of the intervention, not post-treatment quantities to equalize. For selected outputs $M_C^R,M_C^F$, define
+\begin{equation}
+ \Gamma_{C,B}(\mu)=\E_{\mathrm{development}}[V_B(M_C^R;\mu)-V_B(M_C^F;\mu)].\label{eq:Gamma}
+\end{equation}
+Thus a positive $D_B$ need not imply a positive $\Gamma_{C,B}$. A positive $\Gamma_{C,B}$ need not imply either developed mechanism beats its seed. Every statement is relative to $\mu,C,B$, the declared component boundary, and the fixed-author comparator.
+
+\paragraph{A semantic, not syntactic, distinction.}
+A fixed interpreter can simulate a computable self-modifying process by storing the changing program as data. Consequently, no advantage over \emph{all fixed programs} follows from calling a program recursive. Our comparison freezes proposer \emph{behavior}, not merely the interpreter's source text. Primitive-call counts are matched in the experiments; equal wall time or instruction counts are not assumed.
+
+\section{Identification and its limits}\label{sec:identification}
+\begin{proposition}[Native-summary nonidentification]\label{prop:nonid}
+Observations consisting only of native performance-and-lineage pairs can fail to identify even the sign of $D_B$, including in deterministic finite systems.
+\end{proposition}
+To see this, the following two worlds agree on native observations $(A_0,M_0)$ and $(A_1,M_1)$ but reverse both controlled mechanism effects:
+\begin{equation}
+\begin{array}{c|cc|cc}
+ &\multicolumn{2}{c|}{\text{World I}}&\multicolumn{2}{c}{\text{World II}}\\
+ &M_0&M_1&M_0&M_1\\\hline
+ A_0&.4&.7&.4&.3\\
+ A_1&.5&.8&.9&.8
+\end{array}\label{eq:worlds}
+\end{equation}
+Native performance rises from $.4$ to $.8$ in either world; a component swap yields $+.3$ or $-.1$. This elementary counterexample concerns the stated observation model, not an investigator with a complete executable environment model and unrestricted counterfactual queries.
+
+\paragraph{Identification by forks.}
+Generate independent development pairs, randomizing exogenous seeds and cloning their initial states. Apply $\authorR$ and $\authorF$, freeze their selected mechanisms, then evaluate both on common fresh draws from $\mu$. With faithful interfaces, branch consistency, and no cross-branch interference, the average paired released-score difference is unbiased for \eqref{eq:Gamma}. Paired randomness is a variance-reduction device, not an identification assumption. Checkpoint selection may use development data; it must not silently reuse the final audit as development feedback.
+
+\begin{proposition}[Where inheritance contributes]\label{prop:decomp}
+Let $Z_t$ be a sufficient finite development state, $P_t^R,P_t^F$ the two regime kernels, $g_B(Z_C)=V_B(M(Z_C);\mu)$, $d_t^R$ the recursive occupancy, and $V_t^F$ the fixed-author continuation value. For a common initial law,
+\begin{equation}
+ \Gamma_{C,B}=\sum_{t=0}^{C-1} d_t^R(P_t^R-P_t^F)V_{t+1}^F.\label{eq:decomposition}
+\end{equation}
+\end{proposition}
+This is a finite-horizon performance-difference identity, not a new general lemma \citep{trpo}. It isolates a substantive distinction: an inherited mechanism's immediate task score is not its ability to propose states with higher \emph{future fixed-author continuation value}. Even monotone selection of better task improvers can yield a negative dividend. Section~\ref{sec:experiments} constructs this case explicitly.
+
+\section{Imperfect transplants: which effects are identifiable?}\label{sec:robust}
+Swapping a mechanism may also alter an archive adapter, a representation, or an undeclared shared state. We do not infer the size of this mismatch from a nominal performance gain. Instead, the audit specifies a justified uncertainty set for the intended intervention. Uncertainty radii in our controlled examples are structural inputs, not learned calibration guarantees for an arbitrary agent.
+
+For a fixed development pair, branch $a\in\{R,F\}$ has nominal audit kernels $\widetilde K_t^a$ on a sufficient finite state space $\cS$, known initial law $\nu_a$, and terminal reward $r_a\in[0,1]$. Each intended transition row belongs to
+\begin{equation}
+ \cU_{t,s}^a=\{q\in\Delta(\cS):\TV(q,\widetilde K_t^a(s,\cdot))\leq\eps_{t,s}^a,
+ \ \operatorname{supp}(q)\subseteq E_{t,s}^a\}.\label{eq:uncertainty}
+\end{equation}
+The nominal row satisfies the declared support. $E$ encodes sound structural zeros, not unseen transitions in a small sample. First assume uncertainty is independent across time, state, and branch: a \emph{rectangular} model.
+
+\begin{theorem}[Sharp rectangular audit interval]\label{thm:rectangular}
+Set $L_h^a=U_h^a=r_a$, and recursively define
+\begin{equation}
+ L_t^a(s)=\min_{q\in\cU_{t,s}^a}q^\top L_{t+1}^a,
+ \qquad U_t^a(s)=\max_{q\in\cU_{t,s}^a}q^\top U_{t+1}^a.\label{eq:bellman}
+\end{equation}
+The sharp identified interval for the intended paired effect is
+\begin{equation}
+ \left[\nu_R^\top L_0^R-\nu_F^\top U_0^F,
+       \nu_R^\top U_0^R-\nu_F^\top L_0^F\right].\label{eq:sharp}
+\end{equation}
+Both endpoints are attained by admissible kernels, and every intermediate value is attainable. Each TV-row optimization is solved by transferring probability mass from larger to smaller continuation values (reversed for maximization).
+\end{theorem}
+Equation~\eqref{eq:bellman} uses established robust dynamic programming \citep{nilim}. Its audit consequence is that mismatch matters through \emph{reachable, decision-relevant continuation differences}, not only its maximum magnitude. A crude coupling bound uses $\beta_a=1-\prod_t(1-\eps_t^a)$ when every row at time $t$ has radius at most $\eps_t^a$, and expands the nominal contrast by $\beta_R+\beta_F$. It can be much wider than \eqref{eq:sharp}.
+
+\paragraph{Shared uncertainty is different.}
+Independent branch balls are generally only an outer bound when an unknown adapter or history parameter is shared. Suppose the \emph{same} initial history law $q$ is within TV distance $\eps$ of $q_0$, and conditional branch values $v_R(h),v_F(h)$ are known. The sharp interval is
+\begin{equation}
+ \left[\min_{\TV(q,q_0)\leq\eps}q^\top(v_R-v_F),
+       \max_{\TV(q,q_0)\leq\eps}q^\top(v_R-v_F)\right].\label{eq:shared}
+\end{equation}
+If $v_R-v_F$ is constant, the causal contrast is exactly identified even when either branch's value is highly uncertain. In general,
+$|q^\top(v_R-v_F)-q_0^\top(v_R-v_F)|\leq\eps\,\operatorname{span}(v_R-v_F)$.
+Thus branchwise uncertainty need not equal attribution uncertainty. These shared-law and rectangular cases cover different causal assumptions; one must not report rectangular sharpness for an entangled unknown parameter.
+
+\section{The irreducible detection boundary}\label{sec:boundary}
+Sharp finite-state intervals are useful when transition structure is known. A simpler endpoint model isolates what sampling alone can achieve. Let ideal released rewards be Bernoulli with means $\theta_R,\theta_F$, true dividend $\theta=\theta_R-\theta_F$, and observed means $p_R,p_F$. Assume
+\begin{equation}
+ |p_R-\theta_R|\leq b/2,\quad |p_F-\theta_F|\leq b/2.\label{eq:endpoint}
+\end{equation}
+Here $b$ bounds \emph{contrast} distortion, not one-branch distortion. An endpoint-only audit obtains $n$ IID observed pairs and cannot acquire additional structural information.
+
+\begin{theorem}[Minimax separation under transplant distortion]\label{thm:gap}
+Let $0\leq b\leq1$, $0<\gamma\leq1$. Consider testing $H_0:\theta\leq0$ against $H_1:\theta\geq\gamma$, with both errors at most $0<\delta<1/2$ uniformly over \eqref{eq:endpoint}. If $0<\gamma\leq2b$, no such test exists for any sample size. If $0\leq b<1/8$ and $2b<\gamma\leq1/4$, write $g=\gamma-2b$. Thresholding the observed mean contrast at $\gamma/2$ suffices when
+\begin{equation}
+ n\geq\frac{8\log(1/\delta)}{g^2}.
+\end{equation}
+Conversely, even with independent arms, every valid test requires
+\begin{equation}
+ n\geq\frac{\kl(1-\delta,\delta)}{4g^2},\qquad
+ \kl(1-\delta,\delta)=(1-2\delta)\log\frac{1-\delta}{\delta}.\label{eq:lower}
+\end{equation}
+\end{theorem}
+The lower bound constructs overlapping observation laws below the boundary and uses Bernoulli KL above it. This is a specialization of robust-testing reasoning, not a new general contamination theory \citep{chen}. The factor two has a precise meaning: an \emph{observed} positive contrast exceeding $b$ can certify a positive intended effect, but uniform power for all intended effects at least $\gamma$ requires $\gamma>2b$. Sampling error vanishes with $n$; the intervention ambiguity does not. The result concerns the endpoint observation model, not every possible structured intervention experiment.
+
+\section{Independent development, not independent descendants}\label{sec:stats}
+Let development pair $\mathcal D_i$ produce a frozen pair of mechanisms. Conditional on $\mathcal D_i$, let $W_{ij}\in[-1,1]$ be fresh IID paired task-audit differences with mean $\Delta_i$. Set $Z_i=m^{-1}\sum_{j=1}^mW_{ij}$. Independent development pairs make the $Z_i$ IID; individual descendants within a pair are not marginally independent.
+
+\begin{proposition}[Finite-sample fork-and-transplant certificate]\label{prop:certificate}
+For $J$ prespecified contrasts and $n$ independent development pairs, let $\bar Z$ and $s_Z^2$ be the sample mean and unbiased sample variance. With probability at least $1-\delta$, simultaneously for all $J$ effects, a valid interval is $[\bar Z-r-b,\bar Z+r+b]\cap[-1,1]$, where a uniform bound $b$ controls contrast distortion and either
+\begin{align}
+ r_H&=\sqrt{2\log(2J/\delta)/n},\label{eq:hoeffding}\\
+ r_{EB}&=\sqrt{2s_Z^2\log(4J/\delta)/n}
+          +\frac{14\log(4J/\delta)}{3(n-1)},\quad n\geq2.\label{eq:eb}
+\end{align}
+The choice of bound is specified in advance. A lower endpoint above a practical threshold $\eta$ certifies an effect larger than $\eta$.
+\end{proposition}
+The empirical Bernstein bound is obtained by rescaling \citet[Theorem~4]{maurer}; it is not new. The statement is fixed-sample, not optional-stopping-valid. Time-uniform inference needs a confidence-sequence construction \citep{howard} and an audit-data protocol that still controls adaptive model selection. A uniform $b$ must be justified separately; substituting a fitted, unvalidated mismatch estimate does not preserve coverage.
+
+\begin{proposition}[Replication floor and allocation]\label{prop:variance}
+If $\tau^2=\Var(\Delta_i)$ and $\sigma^2=\E[\Var(W_{ij}\mid\mathcal D_i)]$, then
+\begin{equation}
+ \Var(\bar Z)=\frac{\tau^2+\sigma^2/m}{n}.\label{eq:variance}
+\end{equation}
+For cost $n(c_d+mc_a)$ and positive $\tau^2,c_d,c_a$, the unconstrained continuous optimal inner replication is $m^*=\max\{1,\sqrt{c_d\sigma^2/(c_a\tau^2)}\}$, subject to feasibility and integer rounding. Even infinitely many descendants cannot eliminate the $\tau^2/n$ term; a two-point subfamily requires $\Omega(\eps^{-2})$ independent development runs for constant-confidence accuracy $\eps$.
+\end{proposition}
+This is the ordinary nested-variance identity with an important audit interpretation. Sampling 10,000 descendants of one discovered improver estimates that improver well; it does not establish what the development algorithm reliably discovers.
+
+\section{Experiments}\label{sec:experiments}
+We run three controlled suites and a small executable search benchmark. All use synthetic tasks, single-process CPU computation, and no model training or API calls. Protocols, random seeds, per-run outcomes, source hashes, and exact-value checks accompany the paper. Initial and independent-confirmation samples are kept separate.
+
+\subsection{Exact systems and attribution sensitivity}
+Four mechanism states have single-proposal success probabilities $(.02,.04,.20,.30)$ and downstream value $g_B(j)=1-(1-p_j)^B$. Development proposes a mechanism state and retains it only if better. A fixed author uses the seed proposal distribution at every step; the recursive author uses the current state's distribution. Three declared proposal matrices produce positive, zero, and negative dividends. Both regimes can acquire better improvers in all three cases. Exact matrix products and 4,096 paired simulations per setting agree, and the telescoping identity holds to numerical precision. The first generation has zero dividend because both authors initially coincide.
+
+\begin{figure}[t]
+\centering\includegraphics[width=.89\linewidth]{figures/exact_dividend.pdf}
+\caption{Exact finite-state recursion dividends at downstream budget $B=4$. Retaining stronger task improvers can help, harm, or leave unchanged the value of recursive authorship. The fixed-author comparator can improve in every system.}
+\label{fig:exact}
+\end{figure}
+
+For imperfect transplants, an eight-step chain has a 5\% rare-state block and a 95\% clean block. Success hazards are $.06$ and $.02$ in the two branches; nominal contrast is \NominalContrast. Equal maximum row radii yield markedly different intervals depending on whether uncertainty affects only the rare block or all states. At $\eps=.10$, the rare-block sharp interval is \RareInterval, while the uniform coupling interval is \CoarseInterval. We verify each sharp endpoint by evaluating its returned extremal kernels. A separate shared-history example preserves an exact contrast of $.1$ despite substantial uncertainty in either branch.
+
+\begin{figure}[t]
+\centering\includegraphics[width=.89\linewidth]{figures/sensitivity.pdf}
+\caption{Attribution depends on uncertainty structure. Solid boundaries are sharp with uncertainty confined to a rare block; dashed boundaries allow it globally. The coarse uniform coupling bound (dotted) discards reachability. No sampling uncertainty is included in this exact calculation.}
+\label{fig:sensitivity}
+\end{figure}
+
+\subsection{Descendant dependence and endpoint testing}
+A cluster model uses 16 independent development runs, conditional mean $\Delta_i\in\{-.4,+.4\}$, and $m$ descendants per run. Across 10,000 repetitions, incorrectly treating all descendants as independent drives nominal 95\% Hoeffding coverage down to \NaiveCoverage\% at $m=1,024$; the development-level bound remains conservative. Empirical variance follows \eqref{eq:variance}. We also simulate the null/alternative observation laws from Theorem~\ref{thm:gap}: below the separation boundary the same observed law persists at every sample size, whereas errors shrink above it. These are calibration and falsification tests, not demonstrations of general AI capabilities.
+
+\subsection{Executable Boolean-program repair}
+Task agents are feed-forward circuits with six inputs and sixteen gates, using AND, OR, XOR, and NAND. A target circuit is sampled from one of three operation mixtures (mixed, XOR-heavy, or logic-heavy); a parent is formed by corrupting five active genes. Trivial targets and functionally correct parents are rejected. All 64 inputs fit in one machine word, making exact functional evaluation inexpensive.
+
+The improver is an eight-integer rule table controlling edit-position weights, edit types, active-cone preference, and acceptance of neutral task edits. A fixed typed mutation interpreter applies this rule table both to circuit genomes and to the rule table itself. Recursive development uses the selected rule table as the next author; fixed-author development always uses the seed rule table to edit the evolving incumbent. A random-search baseline proposes entire rule tables uniformly. This is bounded self-referential search, not an unrestricted code-writing agent.
+
+Each development run evaluates its seed and $C$ proposals on six training tasks with repair budget 24, retaining strict training-score improvements. Training tasks and search randomness are fixed within a run and independent across runs. At audit, policies are frozen and evaluated on 32 fresh task--parent pairs. Search outcomes are paired across methods by common random numbers. The full 64-input evaluator is available during within-task selection, so generalization is across new tasks and parents, not unseen truth-table inputs. No audit scores feed back into policy selection.
+
+The initial study uses 512 development runs per family and reports every cell of $C\in\{16,64,128\}$ and $B\in\{8,32,128\}$. After observing substantial mechanism gains but small dividends, we freeze a separate confirmation protocol: 4,096 new runs per family, $C=128,B=32$, a one-percentage-point practical equivalence band, and empirical Bernstein intervals simultaneous across the three primary dividends. The equivalence margin and variance-sensitive method were chosen after the initial study but before any confirmation outcomes; this is independent confirmation, not retrospective preregistration. Nine seed-relative gains form a separate 95\% simultaneous confidence family.
+
+\begin{table}[t]
+\centering
+\caption{Independent confirmation: effects in percentage points of correct truth-table outputs. Intervals for $\Gamma$ use the prespecified finite-sample empirical Bernstein bound, simultaneous across the three families. $D_R,D_F$ are point estimates; their separate simultaneous intervals appear in Appendix~\ref{app:results}.}
+\label{tab:confirmation}
+\input{confirmation_table}
+\end{table}
+
+Table~\ref{tab:confirmation} separates two claims that an ordinary progress curve conflates. Both developed mechanisms outperform their seed, but all three primary dividend intervals lie inside $[-1,1]$ percentage points. This establishes practical equivalence at the declared tolerance in this benchmark, not exact equality and not a universal absence of recursion benefits. Uniform random policy search is a stronger comparator here than either local development rule; the complete results retain this unfavorable baseline. The benchmark therefore validates attribution, not a superior RSI algorithm.
+
+Each regime uses $129$ policy evaluations and $129\cdot6\cdot25=19,350$ development circuit evaluations per run. A final $B=32$ audit uses $32\cdot33=1,056$ circuit evaluations per selected policy. We charge all candidate evaluations, including rejected and no-op proposals. The protected interpreter's control-flow costs differ; we match evaluator counts and report measured CPU wall time separately. A claim of identical instruction-level compute would be stronger than this experiment supports.
+
+\section{Scope, limitations, and conclusion}\label{sec:limitations}
+The proposed dividend is relative to a declared comparator and module boundary. Fixed programs can emulate self-modification, and information embedded in code cannot in general be separated uniquely from an algorithm. Our finite-state intervals require known structural uncertainty sets; estimating or validating those sets for realistic agents is a separate problem. Shared hidden parameters can invalidate rectangular sharpness, and undeclared persistent state can invalidate a Markov model. The testing boundary is sharp for the endpoint model stated, not for arbitrary richer observations.
+
+Our experiments are deliberately small and interpretable. They do not validate broad transfer, language-model behavior, or unrestricted recursive improvement. The most informative program result is a separation: learning a better improver does not imply a measurable benefit from recursively inheriting authorship. The paper's tools are intended to make such distinctions auditable. Progress, mechanism improvement, and recursive advantage should be reported as different claims, with explicit intervention assumptions and uncertainty appropriate to the development process.
+
+\clearpage
+\section*{AI-use disclosure}
+Generative AI assisted the formulation, derivation and checking of proofs, implementation, synthetic-experiment design and execution, analysis, and manuscript drafting. Automated tests and executed results are documented in the supplement; they are not a substitute for independent mathematical review. This working draft has not undergone a completed human-author verification pass. Human authors must verify the claims, references, code, and disclosure before submission. No generative model was trained or queried by the experimental algorithms.
+
+\section*{Reproducibility and ethics}
+The supplement contains the full source, frozen protocols, aggregate and per-development-run results, tests, and all proofs. The main experiments use no personal data, human participants, external execution privileges, or paid APIs. The editable rule table cannot modify the interpreter, evaluator, filesystem, or budget counter. Identifying public-repository links are deliberately absent from this anonymous-format manuscript. A public working repository is not an anonymous supplementary link.
+
+\input{references}
+\clearpage
+\appendix
+\input{proofs}
+\input{experiment_details}
+\end{document}
