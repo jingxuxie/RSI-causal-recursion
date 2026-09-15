@@ -1,0 +1,90 @@
+\section{Experimental specification and supplementary results}\label{app:results}
+\subsection{Exact finite-state development systems}
+Let the incumbent mechanism state be $j\in\{0,1,2,3\}$, initially zero. A proposal $k$ is selected with probability $Q_{jk}$ under recursive authorship and $Q_{0k}$ under fixed authorship. The next incumbent is $\max(j,k)$. Define $q_0=(.75,.20,.04,.01)$ and
+\[
+ Q^+=\begin{pmatrix}
+ .75&.20&.04&.01\\ .15&.35&.45&.05\\ .10&.10&.25&.55\\0&0&0&1
+ \end{pmatrix},\quad
+ Q^-=\begin{pmatrix}
+ .75&.20&.04&.01\\ .95&.049&.001&0\\ .98&0&.019&.001\\0&0&0&1
+ \end{pmatrix}.
+\]
+The zero-dividend system has all rows $q_0$. Its two development chains are identical under the paired random stream. For any of these systems, fixed-author transitions are $P^F_{jj}=\sum_{k\leq j}q_{0k}$ and $P^F_{jk}=q_{0k}$ for $k>j$; recursive transitions replace $q_0$ by $Q_j$. The downstream value $g_B(j)=1-(1-p_j)^B$ corresponds to $B$ independent success attempts, with $p=(.02,.04,.20,.30)$. Since this value increases in $j$, selection is monotone in downstream quality. Nevertheless the $Q^-$ rows become worse proposers, producing a negative recursion dividend after the first development step.
+
+We evaluate exact values at $C\in\{1,2,4,8,16,32,64\}$ and $B\in\{1,4,16\}$. Each system has 4,096 independent random trajectories paired between its two regimes, and all 63 cells are retained. Trajectories are shared across checkpoints within a run, so cells are correlated; the finite-family bound does not require independent cells. All transition products, exact effects, Monte Carlo estimates, and decomposition terms are exported.
+
+\subsection{Known-kernel sensitivity experiment}
+States are clean-failure, clean-success, rare-failure, and rare-success. Initial law is $(.95,0,.05,0)$, reward is $(0,1,0,1)$, and horizon is eight. Each clean or rare failure transitions to success with hazard $.06$ for the recursive branch and $.02$ for the fixed branch. Nominal success is absorbing. Structural support permits transitions only within the same clean or rare block; under uncertainty, even a nominal success row may move to its block's failure state. This is intentional and included in the robust optimization.
+
+In the rare-uncertainty condition only rows in the rare block have TV radius $\eps$. In the global condition every row does. Radii range from zero to $.20$ in increments of $.01$. The returned endpoint kernels attain the lower and upper contrasts to numerical precision. A separate invariant-scratch-state check gives terminal value $.7$ under arbitrarily large within-equivalence-class uncertainty. The common-history example of Corollary~\ref{cor:shared} is also exported, keeping that joint model distinct from independent-arm uncertainty.
+
+\subsection{Statistical calibration experiments}
+For the lineage experiment, draw $\Delta_i$ independently as $+.4$ or $-.4$ with equal probability. Conditional on its sign, an inner difference is that sign times an independent Bernoulli$(.4)$ variable. Thus $\tau^2=.16$, $\sigma^2=.24$, and the mean is zero. We use $n=16$ and $m\in\{1,4,16,64,256,1024\}$ over 10,000 repetitions. Naive pooled Hoeffding treats $nm$ differences as independent; the correct Hoeffding bound uses $n$ development averages. The Student-$t$ interval is descriptive and approximate, not finite-sample-valid for this discrete mixture. Its coverage also falls below 95\% at large $m$, illustrating why we do not substitute it for the stated confirmation certificate.
+
+\begin{figure}[h]
+\centering\includegraphics[width=.89\linewidth]{figures/lineage_coverage.pdf}
+\caption{Coverage depends on the replication unit. The pooled-descendant interval becomes sharply anticonservative as inner replication increases; the distribution-free development-level interval is conservative. The approximate $t$ interval is not an exact certificate either.}
+\end{figure}
+\begin{figure}[h]
+\centering\includegraphics[width=.89\linewidth]{figures/lineage_variance.pdf}
+\caption{More descendants reduce the within-development term but leave the between-development floor. The exact variance is $(.16+.24/m)/16$.}
+\end{figure}
+
+For endpoint testing, set $b=.03$, $\gamma\in\{.04,.08,.12\}$, and $n\in\{64,256,1024,4096,16384\}$. When $\gamma\leq2b$, the two hypotheses use the identical midpoint observation law from Theorem~\ref{thm:gap}. Otherwise they use the least-separated laws in that proof. Each sample consists of independent Bernoulli arms, and the test thresholds the estimated contrast at $\gamma/2$. We retain both type-I and type-II rates over 10,000 repetitions. Below the boundary their sum stays near one; increasing $n$ cannot separate identical laws. Above it the exponential upper bound is conservative, as expected.
+
+\subsection{Complete rule-table interpreter specification}
+A circuit with $g$ gates has $3g+1$ integer genes. Each gate stores its operation and two source indices. Source indices must reference an input or an earlier gate. The final gene selects the output wire. The target always initially selects the last gate; mutations may change that output. All six-input truth tables are packed into unsigned 64-bit words and evaluated exactly by bitwise operations. An independent scalar interpreter checks random circuits on every input in the tests.
+
+The policy is $m\in\{0,\ldots,4\}^6\times\{0,\ldots,3\}\times\{0,1\}$. The seed is $(2,2,2,2,2,2,0,0)$. A protected interpreter assigns circuit-gene tags 0 (operation), 1 (wire reference), or 2 (output). The probability of selecting gene $j$ is proportional to
+\[
+ 2^{m_{\operatorname{tag}(j)}}2^{m_6\ind\{j\text{ is active}\}}.
+\]
+A gene is active when it belongs to the current output's backward dependency cone. The edit is a random legal reset, increment, or decrement modulo its cardinality, with weights $2^{m_3},2^{m_4},2^{m_5}$. A random reset is allowed to leave a gene unchanged; this still consumes a proposal and evaluation. The circuit accepts strictly better functional scores and accepts equal scores only when $m_7=1$. Its released score never decreases.
+
+Policy genomes use tags $(0,0,0,1,1,1,2,2)$, and all policy genes are marked active. Recursive and fixed-author development apply the same generic mutation routine to this genome. Recursive authorship uses the current selected $m$; fixed authorship uses the seed as author while still editing the current selected $m$. Meta-level selection always requires a strictly better summed training score. Because all policy genes are active, the author's active multiplier cancels during policy mutation; its neutral-acceptance coordinate is used for circuit repair but not for meta-level selection. This limited overlap between task-improvement and meta-proposal parameters is part of the benchmark, not a general model of self-improvement. It may help explain small dividends and limits extrapolation.
+
+The entire policy space has $5^6\cdot4\cdot2=125,000$ elements. Random search samples this whole space uniformly with replacement. It has the same number of policy evaluations as local recursive and fixed-author search, but can make larger policy jumps. This baseline is deliberately not removed when it performs better. The paper does not compare against every possible nonrecursive optimizer.
+
+The task-family operation probabilities, ordered AND/OR/XOR/NAND, are $(.25,.25,.25,.25)$, $(.10,.10,.70,.10)$, and $(.35,.35,.05,.25)$. Targets with fewer than four or more than sixty true outputs are rejected. Five corruption attempts select genes from the target's initial active cone with replacement and randomly reset them. The active list is not recomputed during corruption; no-op corruptions are possible. A parent computing exactly the target function is rejected. The rejection sampler has an explicit maximum of 10,000 attempts per requested task. The reported population is this rejection-conditioned distribution, not uniform Boolean functions.
+
+\subsection{Protocols, uncertainty families, and outcomes}
+The initial protocol uses seeds 1000 through 1511 separately for each task family. Development streams use a seed sequence built from (seed, family index, 101); audit streams use (seed, family index, 202). Pilot seeds 0 through 3 are excluded. Six training tasks and their search random streams remain fixed within each development run. New audit task--parent pairs and search randomness are generated separately, then shared between paired methods. Candidate policy acceptance never uses final audit outcomes.
+
+The independent confirmation uses seeds 100000 through 104095 per family, one checkpoint $C=128$, and one downstream budget $B=32$. The one-percentage-point margin was set after examining the initial study and before executing confirmation seeds. No policy, task-generator, or selection parameter was tuned between the studies. The original full sweep is retained rather than merged selectively with confirmation results.
+
+\begin{figure}[h]
+\centering\includegraphics[width=.89\linewidth]{figures/confirmation.pdf}
+\caption{Independent confirmation with 4,096 development seeds per family. Simultaneous finite-sample intervals are entirely inside the prespecified $\pm1$ percentage-point band. This is a tolerance-specific conclusion, not proof of exact equality.}
+\end{figure}
+
+\begin{table}[h]
+\centering\small
+\caption{All nine seed-relative mechanism gains from independent confirmation. Empirical Bernstein intervals are simultaneous within this separate nine-comparison family at level 95\%. This is not a claim that the primary and secondary confidence families jointly have 95\% coverage.}
+\input{gains_table}
+\end{table}
+
+The aggregate CSV additionally includes recursive-minus-random comparisons. Their variance-sensitive bounds were computed descriptively after confirmation and are labeled post hoc; they are not substituted for the prespecified primary analysis. Primary recursion-dividend intervals are based on $J=3$; seed-relative gain intervals use $J=9$. The original sweep retains its more conservative Hoeffding bounds ($J=27$ for recursive-minus-fixed cells and $J=135$ for the remaining summaries) and approximate $t$ intervals. No interval is presented as valid after arbitrary stopping.
+
+\subsection{Cost accounting and reproducibility commands}
+The code is single-process Python with NumPy, SciPy, and Numba. Initial execution used Python 3.13.5, NumPy 2.3.5, SciPy 1.17.0, and Numba 0.65.1 on a Linux CPU environment. Five logical CPUs were available, but no parallel Numba kernels, process pool, or GPU were used. The initial full suite took about 59.35 seconds and the independent confirmation about 314.28 seconds in that environment. These are measured runtimes, not guarantees for another laptop, and JIT compilation/cache effects influence them.
+
+With six development tasks, repair budget 24, and $C$ policy proposals, each development regime consumes $(C+1)\cdot6\cdot25$ circuit evaluations. Audit of one frozen policy at budget $B$ consumes $32(B+1)$ circuit evaluations. Multiple audit budgets along the same repair trajectory share the work through the largest budget. Baseline seed audits are computed once per audit case and reused when forming differences. Additional final research scoring is not hidden inside one method's development budget.
+
+To reproduce, install the pinned requirements, run the tests, then execute:
+\begin{verbatim}
+python scripts/run_experiments.py --suite all
+python scripts/run_experiments.py --suite programs \
+  --protocol protocol_confirmation.json \
+  --out results/confirmation
+python scripts/analyze.py
+python scripts/plot_results.py
+cd paper
+pdflatex -interaction=nonstopmode -halt-on-error main.tex
+pdflatex -interaction=nonstopmode -halt-on-error main.tex
+\end{verbatim}
+A separate smoke mode uses pilot seeds and writes outside the paper-result directory. Protocol hashes and source hashes are recorded with each run. Raw archives contain integer audit scores for every development seed, method, checkpoint, task, and budget, together with selected policies, training scores, acceptances, and initial parent scores. Exported per-run CSV files permit recomputing confidence intervals without rerunning search.
+
+\section{Claim audit and remaining validation}\label{app:claims}
+The exact counterexample, performance-difference identity, robust recursion, testing bounds, confidence formulas, and variance statements are proved above under their stated assumptions. Their general ingredients are established mathematics; the paper does not claim to invent robust dynamic programming, concentration inequalities, self-improving code, or descendant-based improver evaluation. Numerical tests independently compare TV optimization against linear programming, evaluate attained robust endpoints, check the telescoping identity, check scalar and packed Boolean semantics, and test noninterference of input arrays.
+
+Important limitations remain for a submission decision. The relevance and novelty of the integrated causal-audit framing relative to existing RSI evaluation and robust-statistics work require a critical external reading. Full human verification of the mathematical claims and code has not yet been completed. The executable benchmark is narrow, and a second nontrivial family of improver representations would strengthen external validity. These are explicit validation needs, not unperformed experiments described as completed results. There are no pending theorem statements silently promoted to theorems in this manuscript.
