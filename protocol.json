@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "purpose": "Frozen confirmatory synthetic protocol; laptop-scale CPU only",
+  "programs": {
+    "families": ["mixed", "xor", "logic"],
+    "development_runs": 512,
+    "first_seed": 1000,
+    "gates": 16,
+    "inputs": 6,
+    "corruptions": 5,
+    "training_tasks": 6,
+    "development_repair_budget": 24,
+    "development_checkpoints": [16, 64, 128],
+    "audit_tasks": 32,
+    "audit_budgets": [8, 32, 128],
+    "regimes": ["recursive", "fixed_author", "random_search"],
+    "primary_comparison": "recursive - fixed_author at C=128, B=32, each family",
+    "secondary_comparisons": "All prespecified checkpoints and budgets; no checkpoint selection on audit data",
+    "score": "Correct fraction on all 64 inputs of the actually released circuit",
+    "matching": "Equal numbers of policy evaluations and circuit evaluations. Wall time separately reported; not a claim of identical machine instruction counts.",
+    "development_data": "Separate training tasks and random streams per independent run; fixed within run",
+    "audit_data": "Fresh task/parent/search streams per independent run, shared only between paired regimes",
+    "pilot_seeds": [0, 1, 2, 3],
+    "pilot_use": "Runtime and software validation only; excluded from reported estimates"
+  },
+  "exact": {"development_runs": 4096, "seed": 51001},
+  "statistics": {"repetitions": 10000, "seed": 61001, "alpha": 0.05},
+  "inference": {
+    "replication_unit": "Independent development run; average inner tasks before inference",
+    "primary_finite_sample_interval": "Bounded Hoeffding, simultaneous over 27 R-F cells",
+    "descriptive_interval": "Paired development-level Student t; asymptotic, not a finite-sample certificate",
+    "report_all_results": true
+  }
+}
