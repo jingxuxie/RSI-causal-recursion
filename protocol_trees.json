@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "description": "Second representation: executable depth-two conditional trees on Boolean repair; frozen before this extension's first measured run, not an external preregistration.",
+  "master_seed": 682719,
+  "families": ["mixed", "xor", "logic"],
+  "development_runs_per_family": 2048,
+  "gates": 16,
+  "training_tasks": 6,
+  "training_budget": 24,
+  "audit_tasks": 24,
+  "development_checkpoints": [16, 64],
+  "audit_budgets": [16, 64],
+  "regimes": ["recursive", "fixed_author", "random_search"],
+  "primary_C": 64,
+  "primary_B": 64,
+  "confidence_delta": 0.05,
+  "primary_contrasts": 3,
+  "seed_gain_contrasts": 9,
+  "notes": [
+    "All initial syntax is fixed before results. No tuning on extension outcomes.",
+    "Both local methods edit the evolving tree incumbent; only active author differs.",
+    "Protected selection accepts strict training improvements; all evaluator calls count.",
+    "Whole-program uniform random search is retained even if stronger.",
+    "Primary finite-sample empirical Bernstein intervals are simultaneous across the three task families.",
+    "Other cells are descriptive; approximate standard errors are labeled as such.",
+    "B-dependent task policies are restarted separately at each B, not read from a prefix.",
+    "C=16 is a checkpoint of a C=64 development schedule, not a separately re-timed run.",
+    "No claim of one-percent equivalence is precommitted for this study."
+  ]
+}
