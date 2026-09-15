@@ -1,0 +1,136 @@
+\section{Complete proofs}\label{app:proofs}
+\subsection{Native-summary nonidentification and semantic emulation}
+\begin{proof}[Proof of Proposition~\ref{prop:nonid}]
+Fix any $B$ and take a degenerate task distribution. Define the released-score map on the four possible parent--mechanism pairs by either matrix in \eqref{eq:worlds}. A deterministic finite environment can implement this map by storing the pair and emitting its table entry as terminal reward. Let the development record visit $(A_0,M_0)$ followed by $(A_1,M_1)$, with the same names, parent pointers, budgets, and recorded scores in both worlds. Then the entire specified record is identical. On either standardized parent, World I's controlled mechanism contrast is $.3$, while World II's is $-.1$. Any statistic of the identical record has the same value in the two worlds and therefore cannot identify the sign. To embed the construction in a longer horizon, insert deterministic transitions that preserve the recorded pair and score; do not add the unobserved cross-pair interventions. This proves nonidentification for the declared summaries.
+\end{proof}
+
+\begin{proposition}[Fixed-interpreter emulation]\label{prop:emulation}
+For any finite-budget computable self-modifying process with a specified random-input stream and primitive-call interface, there exists a fixed interpreter whose state includes the process's editable code and whose primitive-call trace is identical for every random-input stream. This does not imply equal machine-instruction or wall-clock cost.
+\end{proposition}
+\begin{proof}
+Represent the current editable program, working memory, program counter, and remaining budget as data in the interpreter state. At each step the interpreter executes the next transition of the represented program. A self-edit changes the represented program data; an external primitive call is forwarded unchanged; a random-input request consumes the same next random symbol. Induction on the finite execution length gives equality of represented state and forwarded primitive trace at every step. The interpreter itself is fixed, but its interpreted proposer behavior need not remain the seed behavior. Interpreter overhead is not controlled by the argument.
+\end{proof}
+
+This proposition is a representation limitation, not an argument that recursive inheritance never helps. It explains why our fixed-author baseline restricts proposer semantics and why the random-search baseline provides an additional substantive comparison. Our emulation software test checks equality of the declared reference semantics, not a general compiler-correctness theorem.
+
+\subsection{Identification by controlled development and transplantation}
+Write $Y^a(\mathcal D_i,X_{ij},\xi_{ij})$ for the released score obtained by faithfully installing the selected mechanism from regime $a$ in audit case $X_{ij}\sim\mu$. Assume that the branch has no access to the other branch's changing state; that the intended installation and the executed installation agree; and that the sampling law for development is the one appearing in \eqref{eq:Gamma}. Conditional on development,
+\[
+ \E[Y^R-Y^F\mid\mathcal D_i]
+ =V_B(M_C^R;\mu)-V_B(M_C^F;\mu).
+\]
+Taking expectations over independent development pairs gives $\E Z_i=\Gamma_{C,B}$. The same argument with a fixed seed comparator identifies $D_B$. Coupling $X_{ij}$ or $\xi_{ij}$ between branches changes covariance, not the marginals and hence not this equality. Different branches need not produce identical post-treatment archives. Installation of a common \emph{initial} archive is part of $\mu$; forcing later archives to coincide would instead change the intervention.
+
+This result estimates the value of a development algorithm averaged over its specified randomness. It does not establish the quality of every possible checkpoint or a population outside $\mu$. If a checkpoint is selected using a held-out audit and then reported with an unadjusted confidence interval on the same audit, the unbiasedness argument for a fixed selected mechanism no longer applies directly. The finite-family correction in Proposition~\ref{prop:certificate} covers selection among a fixed prespecified set, not unlimited adaptive creation of new mechanisms using audit results.
+
+\subsection{Development performance difference}
+\begin{proof}[Proof of Proposition~\ref{prop:decomp}]
+For the fixed-author chain, $V_C^F=g_B$ and $V_t^F=P_t^FV_{t+1}^F$. Under recursive development,
+\[
+ \E_R[V_{t+1}^F(Z_{t+1})-V_t^F(Z_t)]
+ =d_t^R(P_t^R-P_t^F)V_{t+1}^F.
+\]
+Sum over $t=0,\ldots,C-1$. The left side telescopes to
+$\E_R[g_B(Z_C)]-\E_R[V_0^F(Z_0)]$.
+Because the two regimes have the same initial law, the second term equals $\E_F[g_B(Z_C)]$. Their difference is \eqref{eq:Gamma}. The state must contain all history needed to make the kernels Markov; an incumbent's score alone will generally not suffice.
+\end{proof}
+
+\subsection{TV optimization and rectangular sharpness}
+\begin{lemma}[TV mass-transfer optimization]\label{lem:tv}
+For a probability vector $p$ on a finite known support $E$, a finite vector $v$, and $\eps\in[0,1]$, the minimum of $q^\top v$ subject to $q\in\Delta(E)$ and $\TV(p,q)\leq\eps$ is attained by moving mass from highest-value donor coordinates to lowest-value receiver coordinates until the TV budget is exhausted or no strict improvement remains. The maximum follows by replacing $v$ with $-v$.
+\end{lemma}
+\begin{proof}
+Write $(q-p)_+$ and $(p-q)_+$ for received and donated mass. They have equal total $t=\TV(p,q)\leq\eps$. Among donors, removing a unit at a larger value cannot be worse than removing it at a smaller value; exchange the donor assignments whenever they violate this order, subject to each donor's available mass $p_i$. Likewise, assigning a received unit to a smaller value cannot be worse than assigning it to a larger value, subject to coordinate capacity $1-p_i$. A donor and receiver can be combined or canceled if the same coordinate appears in both roles, without increasing total moved mass or changing $q$. Consequently an optimum can be arranged with descending-value donors and ascending-value receivers. Exhaust each available donor or receiver before advancing to the next. Stop when donor value does not exceed receiver value, since additional transfers then cannot improve the objective. This is exactly the greedy algorithm. Its output is feasible, and any feasible transfer plan can be transformed to this ordering without increasing the objective, proving optimality. Ties permit multiple optima.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:rectangular}]
+Each row set is a nonempty compact convex subset of the simplex. For terminal time $h$, the claimed lower and upper values equal the fixed reward. Suppose the lower value is correct at time $t+1$ for every state, and that one admissible future collection of rows achieves these lower values simultaneously. Such simultaneous attainment holds at time $h$ trivially. For any admissible row $q$ at $(t,s)$ and any admissible continuation, expected reward is at least $q^\top L_{t+1}^a$, hence at least $L_t^a(s)$. Compactness gives a minimizing row. Because the row sets are independent across states and times, choose a minimizing row at every state and combine them with the simultaneously minimizing future collection. This achieves $L_t^a$ at all states. Backward induction proves the lower result and simultaneous attainment; the maximum is identical with inequalities reversed.
+
+The fixed initial law gives the branch extrema $\nu_a^\top L_0^a$ and $\nu_a^\top U_0^a$. Independence of branch uncertainty permits combining the minimizing recursive kernels with maximizing fixed-author kernels, and vice versa. This proves the endpoints in \eqref{eq:sharp}. The full product of row sets is connected and compact. The contrast is a continuous function of its entries (a finite sum of products). Its image in $\R$ is therefore a compact interval containing its minimum and maximum, so all intermediate effects are attained. Lemma~\ref{lem:tv} supplies the stated row optimization.
+\end{proof}
+
+\paragraph{Why rectangularity matters.}
+If two transition rows must share an unknown parameter, independently choosing their minimizing values can violate the joint constraint. The construction in the proof is then infeasible. The rectangular relaxation still provides an outer interval if it contains the true joint set, but equality and endpoint attainment for the original problem need not follow. Similarly, if hidden persistent state has been omitted, there may not be a single intended Markov row corresponding to the declared state; merely assigning a small row radius does not repair the model.
+
+\begin{corollary}[Shared-history sharpness and invariance]\label{cor:shared}
+Under the common-history-law model in \eqref{eq:shared}, that interval is sharp. If $d(h)=v_R(h)-v_F(h)$ is constant on the allowed histories, the identified set is the singleton containing that constant. For any $q$ in the TV ball,
+\[
+ |(q-q_0)^\top d|\leq\eps(\max_h d(h)-\min_h d(h)).
+\]
+\end{corollary}
+\begin{proof}
+Condition on history and apply the law of total expectation to obtain the intended contrast $q^\top d$. The feasible $q$ set is compact and convex and the objective is linear, so the extrema in \eqref{eq:shared} are attained and all intermediate values follow by convex mixing. For the inequality, subtract the constant $\min_h d(h)$ from $d$; $q-q_0$ sums to zero. The sum of its positive entries is $\TV(q,q_0)$, so the absolute signed expectation is bounded by this mass times the range of $d$. A constant $d$ has range zero. The argument also applies to a known common pre-fork Markov process by propagating $d$ backward; optimizing its uncertain kernels requires preserving their shared structure.
+\end{proof}
+
+For example, $q_0=(.5,.5)$, $v_R=(.3,.9)$, $v_F=(.2,.8)$, and radius $1$ allow either branch's value to vary over an interval of width $.6$. Nevertheless the intended contrast is always $.1$. Treating the histories as independently uncertain between branches would incorrectly enlarge the sharp interval for the common-history model to $[-.5,.7]$.
+
+\begin{lemma}[Coarse finite-horizon coupling bound]\label{lem:coupling}
+If the nominal and intended kernels have rowwise TV distance at most $\eps_t$ at time $t$, share an initial law, and have the same terminal reward in $[0,1]$, their terminal expected rewards differ by at most $1-\prod_{t=0}^{h-1}(1-\eps_t)\leq\sum_t\eps_t$.
+\end{lemma}
+\begin{proof}
+Start both processes in the same sampled state. As long as their states agree, use a maximal coupling of their next-state distributions, which preserves equality with probability at least $1-\eps_t$. The probability of no disagreement through time $h$ is at least the product of these factors. On the equality event terminal rewards are equal; on its complement their absolute difference is at most one. Taking expectations proves the first bound. The second is the union bound, or an induction on the product. Applying the argument separately to two branches bounds contrast distortion by the sum of their branch bounds. This bound is not generally sharp for a particular transition graph.
+\end{proof}
+
+\subsection{Endpoint detection boundary}
+\begin{proof}[Proof of Theorem~\ref{thm:gap}]
+First suppose $0<\gamma\leq2b$. Consider a null ideal pair $(\theta_R,\theta_F)=(1/2,1/2)$ and an alternative ideal pair $(1/2+\gamma/2,1/2-\gamma/2)$. Use the same observed means $(p_R,p_F)=(1/2+\gamma/4,1/2-\gamma/4)$ in both worlds, with independent Bernoulli arms and IID repetition. Each arm's distortion is $\gamma/4\leq b/2$. The entire observed data law is identical. If the test rejects with probability $u$ under this law, its type-I and type-II errors in these two worlds sum to $u+(1-u)=1$. They cannot both be at most $\delta<1/2$, irrespective of $n$. The construction uses valid Bernoulli parameters whenever $\gamma\leq1$; effects outside the feasible range are irrelevant.
+
+Now suppose $g=\gamma-2b>0$. Let $W_i=Y_i^R-Y_i^F\in[-1,1]$ and $\widehat d=n^{-1}\sum_iW_i$. Under every null, $\E\widehat d\leq b$, and under every alternative $\E\widehat d\geq\gamma-b$. Threshold at $\gamma/2$. In either case the required one-sided deviation is at least $g/2$. Hoeffding's inequality for independent variables of range two gives each error at most $\exp(-ng^2/8)$. Thus the stated sufficient sample size follows. Dependence between arms within a pair does not affect this bound.
+
+For the lower bound use independent arms. The null ideal pair is $(1/2,1/2)$ with observed pair
+\[
+ p^0=(1/2+b/2,\;1/2-b/2),
+\]
+and the alternative ideal pair is $(1/2+\gamma/2,1/2-\gamma/2)$ with observed pair
+\[
+ p^1=(1/2+(\gamma-b)/2,\;1/2-(\gamma-b)/2).
+\]
+All distortions have magnitude $b/2$. The difference between corresponding observed arm means has magnitude $g/2$. Under the stated parameter range the means lie in $[1/4,3/4]$. The Bernoulli inequality
+$\kl(p,q)\leq(p-q)^2/[q(1-q)]$
+therefore bounds each arm KL by $4g^2/3$. The two-arm KL is at most $8g^2/3\leq4g^2$, and $n$ IID pairs have KL at most $4ng^2$.
+
+Let $E$ be the event that a proposed test rejects the null. Uniform error control implies $P_1(E)\geq1-\delta$ and $P_0(E)\leq\delta$. Data processing for KL applied to the binary indicator of $E$, followed by monotonicity of binary KL in this region, gives
+\[
+ 4ng^2\geq\KL(P_1^{\otimes n},P_0^{\otimes n})
+ \geq\kl(P_1(E),P_0(E))\geq\kl(1-\delta,\delta).
+\]
+Rearranging proves \eqref{eq:lower}. The logarithmic asymptotic dependence follows because $\kl(1-\delta,\delta)$ is of order $\log(1/\delta)$ for small $\delta$.
+\end{proof}
+
+\paragraph{Observed certification versus uniform power.}
+If an observed population contrast is $d$, the intended effect lies in $[d-b,d+b]$ before endpoint clipping, so $d>b$ certifies positivity. In contrast, the worst-case observation of a true effect $\gamma$ is $\gamma-b$, while the largest observation compatible with a zero effect is $b$. Uniformly separating these sets requires $\gamma-b>b$. These are different quantifiers; replacing the testing boundary by $\gamma>b$ would be incorrect.
+
+\subsection{Development-level confidence bounds}
+\begin{proof}[Proof of Proposition~\ref{prop:certificate}]
+For any one fixed contrast the variables $Z_i$ are independent, identically distributed, and in $[-1,1]$. Hoeffding's two-sided inequality yields
+\[
+ \Pr\{|\bar Z-\E Z_i|>r\}\leq2\exp(-nr^2/2).
+\]
+Set its right-hand side to $\delta/J$ and union bound over the $J$ contrasts to obtain \eqref{eq:hoeffding}. No independence between different contrasts is required.
+
+For the second bound put $X_i=(Z_i+1)/2\in[0,1]$. Theorem~4 of \citet{maurer} gives a one-sided radius
+$\sqrt{2s_X^2\log(2/\alpha)/n}+7\log(2/\alpha)/(3(n-1))$
+with failure probability at most $\alpha$. Apply it to $X$ and $1-X$, each with $\alpha=\delta/(2J)$, and union bound over sides and contrasts. Since $s_X^2=s_Z^2/4$ and $Z=2X-1$, multiplication by two gives exactly \eqref{eq:eb}. The probability guarantee is fixed-sample; observing data until the bound happens to pass is not covered.
+
+If the intended population contrast differs from $\E Z_i$ by at most a known $b$, expand either valid sampling interval by $b$ on each side. A per-development-pair distortion bound of at most $b$ implies this population bound by taking expectations. Intersecting with the known range $[-1,1]$ preserves coverage. If $b$ itself is obtained from a random calibration procedure, its failure probability needs a separate allocation and union bound; it is not free.
+\end{proof}
+
+\paragraph{Random exact identified intervals.}
+There is an alternative when the kernels for each developed pair are exactly known and Theorem~\ref{thm:rectangular} supplies endpoints $\ell_i,u_i\in[-1,1]$. Since $\ell_i\leq\Delta_i\leq u_i$, averaging independent pairs and applying one-sided bounded-mean concentration to the two endpoint sequences yields a population interval. Estimating the kernels from data introduces another uncertainty layer. The paper's sensitivity experiments use known kernels and do not claim to have solved finite-data structural calibration.
+
+\subsection{Nested variance, optimal allocation, and a lower bound}
+\begin{proof}[Proof of Proposition~\ref{prop:variance}]
+Conditional independence of the inner audits gives
+$\Var(Z_i\mid\mathcal D_i)=\Var(W_{ij}\mid\mathcal D_i)/m$ and
+$\E[Z_i\mid\mathcal D_i]=\Delta_i$.
+The law of total variance yields $\Var(Z_i)=\tau^2+\sigma^2/m$. Averaging $n$ independent pairs divides this by $n$, proving \eqref{eq:variance}.
+
+For continuous total budget $T=n(c_d+mc_a)$ substitute $n=T/(c_d+mc_a)$. Apart from $1/T$, the variance becomes
+\[
+ (\tau^2+\sigma^2/m)(c_d+mc_a)
+ =\tau^2c_d+\sigma^2c_a+\tau^2c_am+\sigma^2c_d/m.
+\]
+Its derivative is $\tau^2c_a-\sigma^2c_d/m^2$, which vanishes at the stated square-root allocation. The second derivative is nonnegative, and the boundary $m\geq1$ gives the maximum with one. The continuous formula is feasible only when the total budget permits the corresponding $n$; a finite experiment compares neighboring integer allocations and includes a minimum number of outer replications. If $\tau^2=0$ or a cost vanishes, this interior formula does not apply.
+
+For the replication lower bound, let $\Delta_i\in\{-a,+a\}$ for a fixed $a\in(0,1]$, with mixture probability $p$ for $+a$, and set every inner outcome deterministically to $W_{ij}=\Delta_i$. Arbitrarily many inner samples reveal only this one Bernoulli latent label per development pair. Take $p_0=1/2-u$, $p_1=1/2+u$, $0<u\leq1/4$, so the population effects differ by $4au$. An estimator accurate within $\eps$ with probability at least $3/4$ at both distributions would, for $u=\eps/a$ and $\eps\leq a/4$, produce a test by thresholding at zero; the means are $\pm2\eps$. Its two errors would be at most $1/4$. But the one-pair KL between the latent Bernoulli laws is at most $(2u)^2/[(1/2-u)(1/2+u)]\leq64u^2/3$. Data processing as above forces $n(64u^2/3)\geq\kl(3/4,1/4)>0$. Thus $n=\Omega(a^2/\eps^2)$ for fixed confidence, independent of the number of inner descendants.
+\end{proof}
