@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "description": "Independent confirmation after the first conditional-tree study; same representation and optimization problem, new independent seeds and a fixed primary endpoint.",
+  "master_seed": 682720,
+  "families": [
+    "mixed",
+    "xor",
+    "logic"
+  ],
+  "development_runs_per_family": 4096,
+  "gates": 16,
+  "training_tasks": 6,
+  "training_budget": 24,
+  "audit_tasks": 24,
+  "development_checkpoints": [
+    64
+  ],
+  "audit_budgets": [
+    64
+  ],
+  "regimes": [
+    "recursive",
+    "fixed_author",
+    "random_search"
+  ],
+  "primary_C": 64,
+  "primary_B": 64,
+  "confidence_delta": 0.05,
+  "primary_contrasts": 3,
+  "seed_gain_contrasts": 9,
+  "notes": [
+    "Chosen after viewing the first tree study and committed before confirmation outcomes; not retrospective preregistration.",
+    "No changes to tree grammar, seed, task family, optimization, or selection rules.",
+    "Primary C=64, B=64; 4096 NEW development seed sets per family; do not pool discovery runs into confirmation intervals.",
+    "Three primary dividends have simultaneous 95% finite-sample empirical Bernstein intervals. Nine seed gains have a separate simultaneous 95% confidence family.",
+    "Uniform whole-program search remains in the reported results.",
+    "Local imports were factored into an isolated Boolean core with identical task semantics; deterministic replay is checked on a fixed small seed set."
+  ]
+}
