@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "checks": [
+    "protocol.json: protocol and executable-program hashes match",
+    "protocol.json/mixed: first two seed sets replay bitwise exactly",
+    "protocol.json/xor: first two seed sets replay bitwise exactly",
+    "protocol.json/logic: first two seed sets replay bitwise exactly",
+    "protocol_confirmation.json: protocol and executable-program hashes match",
+    "protocol_confirmation.json/mixed: first two seed sets replay bitwise exactly",
+    "protocol_confirmation.json/xor: first two seed sets replay bitwise exactly",
+    "protocol_confirmation.json/logic: first two seed sets replay bitwise exactly",
+    "All 15 confirmation summaries and bounds recompute from saved integer scores"
+  ],
+  "raw_data": {
+    "results/confirmation/programs_logic_raw.npz": {
+      "bytes": 402484,
+      "sha256": "8535c1c400af6fc86f7369895577be36806fc87326ae60f0cab44d91acb8f205"
+    },
+    "results/confirmation/programs_mixed_raw.npz": {
+      "bytes": 385143,
+      "sha256": "c644747219d9152252135c5c9145a82bce2d3670232055bf99ff04855d3b4b2f"
+    },
+    "results/confirmation/programs_xor_raw.npz": {
+      "bytes": 305914,
+      "sha256": "24e706ddbbc739c1bbb3c0b202ebd0cc5eaa662c851a22276deefacd0d135033"
+    },
+    "results/exact_raw.npz": {
+      "bytes": 72070,
+      "sha256": "7eb23182c43d3184258a338309c58e3c5bd4666f6df3c9bc9734ba0106d6c0df"
+    },
+    "results/programs_logic_raw.npz": {
+      "bytes": 174593,
+      "sha256": "76e06cad1d218cd13f10fe5e4528a0d2860c528262840ddb664d3ecca1354a61"
+    },
+    "results/programs_mixed_raw.npz": {
+      "bytes": 163855,
+      "sha256": "f0581dcf498bcde750b2f757d064bd0e008d05b876f597d61ea756b5bc434a70"
+    },
+    "results/programs_xor_raw.npz": {
+      "bytes": 129514,
+      "sha256": "5ff41daf8ebce79d0d40c42bd82d288a19abc9578df5cc90e9542904ae4f5390"
+    },
+    "results/statistics_raw.npz": {
+      "bytes": 531156,
+      "sha256": "185a0f20cf5a2a6bfcdc014148aa3f2b71c7ee260968d90795ba87cb66560749"
+    }
+  },
+  "current_source": {
+    "src/__init__.py": "cc11a4a89eece2086d499451460adf4b1f95c367834e1d9905271165a46e13f1",
+    "src/programs.py": "d9be258da7204c0581dc576657a97e130517274739f29d3d90090430a039d8d8",
+    "src/theory.py": "6a022b9d48d4ecef667806db0b7d4baeb5c6fbe8ec7941df9efcc38f6d0b7d4f",
+    "scripts/analyze.py": "d7fe16475d1abcf97a8c16420ef541bd21929b48ce795ab48d52da6ae0c10d14",
+    "scripts/plot_results.py": "3a9b3d2f252d96c2951b0b626ea4725665d57797d9ae15f0f2b9589fe8015c10",
+    "scripts/run_experiments.py": "8aaf1df98ffecde9960c708437559020195adda0f3418baf3fc816459a157410",
+    "scripts/verify_artifacts.py": "6cd9917855b3ea2e8040cb759a465eccc97d2bdcaff0a257268f62d5808a4cfe",
+    "tests/test_programs.py": "24bf2de6e8ef370cf607403cbf6e18cb94e45adbe20362de8a03344c127e8b11",
+    "tests/test_theory.py": "57a9fa3dbf6fb235b50f5a8f5a4e8acefe987fcb40a635b3cb279a2d4219aa65"
+  },
+  "note": "Checks validate implementation and recorded evidence, not novelty or independent proof review."
+}
