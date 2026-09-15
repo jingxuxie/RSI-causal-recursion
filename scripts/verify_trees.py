@@ -89,6 +89,20 @@ def main() -> None:
                                                n, denom, cfg['seed_gain_contrasts'])
             np.testing.assert_allclose(computed, [row[k] for k in ['mean','lower','upper']], atol=1e-14)
         checks.append(f'{dirname}: protocol hash, all 12 finite-sample intervals, and all method means verified from integer statistics')
+        joint_path = out/'joint_family_check.json'
+        if joint_path.exists():
+            joint = json.loads(joint_path.read_text())
+            assert joint['comparisons'] == 12 and len(joint['rows']) == 12
+            signs = []
+            for row in joint['rows']:
+                computed = interval_from_sufficient(
+                    st['families'][row['family']]['contrasts'][row['contrast']],
+                    n, denom, joint['comparisons'], joint['delta'])
+                np.testing.assert_allclose(computed,
+                    [row[k] for k in ['mean','lower','upper']], atol=1e-14)
+                signs.append(computed[2] < 0 if row['contrast'] == 'dividend' else computed[1] > 0)
+            assert bool(all(signs)) == joint['all_reported_signs_preserved']
+            checks.append(f'{dirname}: stricter joint J=12 confidence-family check verified')
         if args.aggregate_only:
             continue
         assert sha(out/'raw.npz') == meta['raw_sha256']

@@ -1,25 +1,30 @@
-# Completed research results
+# Executed results
 
-This is a working research draft, not a submitted or independently reviewed paper.
+## Conditional-tree independent confirmation
 
-The independent Boolean-program confirmation used 4,096 development seeds per family, 128 development proposals, and 32 downstream repair proposals. Each seed contains paired recursive, fixed-author, and random-search development trajectories. The fixed-author method may discover and retain improved policies; only its proposer remains the seed.
+4,096 independent development seeds per family, C=64, B=64. Effects are percentage points. Each seed contains paired recursive, fixed-author, and uniform whole-program search runs; these methods are not independent replications.
 
-Effects below are percentage points of correct truth-table outputs.
-
-| Family | Recursive gain over seed | Fixed-author gain over seed | Recursion dividend | Simultaneous finite-sample 95% interval |
+| Family | Recursive gain | Fixed-author gain | Recursion dividend | Simultaneous 95% interval |
 |---|---:|---:|---:|---:|
-| Mixed | 5.55 | 5.61 | -0.065 | [-0.841, 0.711] |
-| XOR-heavy | 4.08 | 4.10 | -0.021 | [-0.771, 0.730] |
-| Logic-heavy | 6.21 | 6.15 | 0.058 | [-0.725, 0.842] |
+| Mixed | 3.28 | 4.78 | -1.50 | [-2.35, -0.65] |
+| XOR-heavy | 2.89 | 4.23 | -1.34 | [-2.17, -0.51] |
+| Logic-heavy | 3.75 | 5.41 | -1.66 | [-2.53, -0.80] |
 
-All three primary intervals lie within the prespecified one-percentage-point practical-equivalence band. This does not establish exact equality or a general impossibility of recursive self-improvement. Random policy search performs better than either local-development method, and its outcomes are retained.
+All three primary dividend intervals exclude zero. All nine seed-relative gains, including whole-program random search, have positive lower bounds in their separate confidence family. A stricter J=12 joint-family check preserves all signs. This is a bounded-system negative inheritance effect despite positive mechanism improvement, not a claim that RSI generally fails.
 
-The original 512-seed-per-family grid and the independent confirmation are separate. The confirmation margin and empirical Bernstein analysis were chosen after initial results but before confirmation seeds were executed. This is not an external preregistration. The nine seed-relative gains use a separate simultaneous confidence family.
+The initial 2,048-seed-per-family tree study is retained separately. All six meta-type permutations were subsequently tested with another 2,048 new seed sets per family. Every point-estimated dividend was negative, but that diagnostic's 18-comparison intervals include zero. None of its 15 nonidentity adapter-effect intervals excludes zero; this does not establish equivalence.
 
-A complete 17-page draft is written in the official ICLR 2027 format, with seven main-text pages and full proofs and experimental appendices. The theory includes comparator-specific causal effects, score-summary nonidentification, sharp finite-state attribution intervals under rectangular uncertainty, shared-history cancellation, a terminal-audit detection boundary, and development-level statistical certificates. Established mathematical ingredients are explicitly attributed rather than claimed as newly invented.
+## Retained original rule-table confirmation
 
-In the stated terminal-audit model, if b bounds total contrast distortion, uniform detection of a true effect gamma is impossible when gamma <= 2*b. Above that boundary the sample size scales as log(1/delta)/(gamma-2*b)^2. The assumptions and full proof are in the manuscript.
+At C=128, B=32, with 4,096 development seeds per family, both local methods improve over the seed. All three primary dividend intervals fit inside a prespecified +/-1 percentage-point practical-equivalence band. This is tolerance-specific equivalence, not exact equality. Whole-policy random search is stronger in mean and is not omitted.
 
-All 35 software tests pass. Saved seed prefixes replay bitwise exactly for all three families in both studies, and every confirmation interval recomputes from the saved integer scores. Measured CPU execution was about 59 seconds for the initial suite and 314 seconds for confirmation in the recorded environment; no GPU or LLM API was used.
+## Evidence and verification
 
-Before submission, the paper still needs human-author proof/code verification, a critical novelty review, and preferably a second executable improver representation. The public repository is identifying and must not be used as an identifying link in an anonymous submission.
+- `results/trees_confirmation/summary.json` and `sufficient.json`: all primary means, intervals, and exact integer sufficient statistics.
+- `results/trees_confirmation/joint_family_check.json`: stricter joint-family sensitivity check.
+- `results/trees/`: exploratory grid and execution metadata.
+- `results/adapter_diagnostic/`: every mapping result and source/protocol/raw hashes.
+- `results/confirmation/`: original confirmation, preserved.
+- `results/trees_extension_tests.txt`: 70 local tests passed.
+
+`make verify-aggregates` recomputes the new published intervals without rerunning search. Full verifiers additionally check raw data, source hashes, and deterministic seed-prefix replay. Raw arrays and per-run CSVs are included in the accompanying research archive and can be regenerated from the frozen protocols. Replaying old seeds is not counted as new independent evidence.

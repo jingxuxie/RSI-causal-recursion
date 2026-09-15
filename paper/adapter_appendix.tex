@@ -1,0 +1,21 @@
+\section{A controlled diagnostic of the task-to-meta type mapping}\label{app:adapterdiagnostic}
+The negative conditional-tree dividend raises a possible explanation: an editing preference useful for circuit operations and wires might map poorly to feature selectors, thresholds, and action leaves during self-editing. We test one precisely defined part of this explanation rather than infer it from post-treatment edit counts.
+
+For each permutation $\pi$ of $\{0,1,2\}$, replace only the meta-level gene tag $v$ by $\pi(v)$. Keep circuit tags, genotype cardinalities, tree semantics, features, seed, evaluator, task distribution, and both budgets fixed. This changes the complete recursive system; it is not merely a semantics-preserving renaming. It is, however, a selective intervention with a useful invariance.
+
+\begin{proposition}[Fixed-author invariance under meta-tag permutation]\label{prop:adapterinvariance}
+For the declared seed with action 9 at every leaf, fixed-author development is pointwise identical under all six meta-tag permutations, for every training instance and random-input stream. Its final frozen-policy audit is therefore also identical. The same invariance applies to the first recursive proposal, but need not hold after a changed tree is inherited.
+\end{proposition}
+\begin{proof}
+Action 9 selects all coordinates without inspecting tags or activity, then performs uniform replacement. All internal decisions of the seed reach a leaf with this same action. Starting from the same incumbent, every fixed-author proposal thus selects the same coordinate and replacement using the same two random numbers for every permutation. Evaluation uses unchanged task semantics and identical training randomness, so scores and acceptance decisions coincide. Induction on development steps gives identical incumbents, scores, and final mechanisms. Identical frozen mechanisms yield identical audits under a common audit input stream. Before the first recursive change, its author is the same seed, proving the final statement. A later inherited leaf can select a particular tag, so the induction does not apply to arbitrary recursive authors.
+\end{proof}
+
+An additional protocol, fixed after the primary confirmation but before these diagnostic outcomes, evaluates every permutation using 2,048 new independent seed sets per family (master seed 682721), $C=B=64$, six training tasks, and 24 audit tasks. Within each seed, six recursive variants are paired with one common fixed-author trajectory. Reusing that invariant baseline reduces redundant work, not the declared cost of any compared method. Each recursive-minus-identity contrast is a paired development-level observation in $[-1,1]$; the 15 nonidentity effects form one 95\% simultaneous empirical Bernstein family. The 18 recursive-minus-fixed dividends form a separate confidence family. Identity effects are exactly zero by construction. No permutation is selected for selective reporting.
+
+\begin{table}[h]
+\centering
+\caption{All mapping diagnostics, in percentage points. A mapping 120 sends original tag 0 to 1, 1 to 2, and 2 to 0. Dividend and adapter-change intervals belong to separate simultaneous confidence families.}
+{\small\input{adapter_table}}
+\end{table}
+
+All 18 point-estimated dividends are negative. Relative to identity, point-estimated changes range from approximately $-.05$ to $+.15$ percentage points, and every nonidentity adapter-effect interval includes zero. This diagnostic does not support a detected benefit from the tested remappings. However, its conservative intervals are too wide to establish practical equivalence among mappings, and the simultaneous dividend intervals in this smaller, larger-family study do not exclude zero. We therefore do not claim that all mappings have a certified negative dividend, or that this experiment disproves every task-to-meta mismatch explanation. The original independent confirmation retains its separate, prespecified inferential claim. The diagnostic took approximately 253 seconds on the recorded single-process CPU environment; selected policies and all raw outcomes are retained.

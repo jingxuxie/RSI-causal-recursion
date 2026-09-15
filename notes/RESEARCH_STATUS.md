@@ -1,28 +1,28 @@
 # Research status and submission gates
 
-## Completed and executed
+## Completed in this revision
 
-A seven-page main paper plus references/disclosure and full proof/experiment appendices is written in the official ICLR 2027 style. The working PDF is clearly marked not submitted.
+The research manuscript has eight pages of main text and 23 pages including disclosure, references, complete proofs, and detailed experiments. It uses the official ICLR 2027 style and is marked as a research draft, not submitted. The PDF compiles without overfull boxes or unresolved references; rendered pages, tables, and figures were inspected.
 
-All stated theorems have written proofs. Independent numerical checks compare TV optimization against SciPy linear programming and evaluate the extremal transition kernels returned by robust dynamic programming. The implementation verifies performance-difference telescoping, common-history cancellation, Boolean scalar/bit-packed agreement, and input immutability. The current suite passes 35 tests.
+The original rule-table experiment and its independent confirmation were rerun from the tracked code. Exact, sensitivity, and lineage CSVs agree after normalizing LF/CRLF line endings. All 15 original confirmation intervals recompute from saved integer outcomes. These deterministic replays are not additional independent scientific samples.
 
-The original program study uses 1,536 independent development seed sets (512 per family). The independent confirmation uses 12,288 additional seed sets (4,096 per family). Each seed set contains three development methods plus a seed-policy audit. All initial grid cells and the less favorable random-search baseline are retained. Exact-model and statistical calibration experiments were also executed.
+The new conditional-tree representation adds 6,144 exploratory development seed sets and 12,288 independent confirmation seed sets. Each contains paired recursive, fixed-author, and whole-program-random development. At C=64 and B=64, all three simultaneous finite-sample confirmation intervals for the recursion dividend are strictly negative, while both local methods improve over the seed. The random-search baseline remains stronger in mean.
 
-## Strongest supported conclusion
+An additional 6,144 independent diagnostic seed sets evaluate all six task-to-meta tag permutations, with a pointwise-invariant fixed-author comparator. Their point estimates do not support the proposed simple remapping explanation; conservative intervals do not establish equivalence. These outcomes are retained rather than omitted.
 
-In the endpoint-only audit model, a true recursion effect at or below twice the allowed contrast distortion cannot be uniformly distinguished from zero. Above that boundary, upper and lower sample bounds match in their dependence on the remaining gap. In the Boolean benchmark, better improvers are acquired without an inheritance dividend exceeding the prespecified one-percentage-point tolerance. These are distinct theoretical and empirical claims.
+The complete local suite passes 70 tests. New tests compare whole task-repair trajectories against an independently written scalar Boolean implementation, check exact extraction of the original task generator, verify fixed-author invariance under all tag permutations, enumerate small robust-model alternatives, and check input isolation. Separate evidence verifiers recompute all new finite-sample intervals, source/protocol hashes, and deterministic seed-prefix replays.
 
-## Attribution and novelty
+## Mathematical additions and scope
 
-This is an integrated causal-audit framework, not a new general robust-MDP algorithm or concentration inequality. Native-score nonidentification and fixed-interpreter emulation are elementary but necessary setup. The performance-difference identity, rectangular Bellman recursion, empirical Bernstein inequality, and nested-variance identity are established machinery. The proposed contribution is the specified recursive/fixed-author intervention, its attribution-versus-detection boundary, and the executable audit showing why mechanism gains and inheritance gains must be reported separately.
+The persistent-adapter proposition distinguishes an exact finite identified set, its sharp mixture interval, and the looser rowwise robustness relaxation. A two-step example gives [0.2,0.2] for every permissible persistent adapter but [-0.2,0.2] under illegal within-audit switching. This is an application of nonrectangular uncertainty principles, not a claimed new general robust-MDP result.
 
-A comprehensive novelty claim relative to causal inference, algorithm configuration, evolutionary self-adaptation, and recent RSI evaluation is NOT yet independently verified. The related-work positioning should receive an adversarial reading before submission. The current benchmark is deliberately narrow; a second executable improver representation would materially strengthen the paper.
+The adapter diagnostic has a complete pointwise invariance proof for the fixed-author comparator. The endpoint testing theorem, robust Bellman recursion, performance-difference identity, and empirical Bernstein construction are explicitly identified as specialized uses of established machinery. See PROOF_AUDIT.md and NOVELTY_AUDIT.md.
 
-## Specific remaining gates
+## Remaining submission gates
 
-1. Human-author proof and code verification, especially the intervention uncertainty assumptions and testing-model scope.
-2. Critical novelty comparison beyond the directly cited RSI systems; avoid presenting standard robust-testing geometry as a new general theorem.
-3. External-validity expansion: a second bounded representation, rather than more seeds on the same rule table.
-4. Final authorship, truthful AI disclosure, anonymous supplementary packaging, and current venue-format checks before an actual submission.
+1. Independent adversarial review of the complete mathematical proofs and interpreter semantics. Automated checks and an AI-led proof audit do not constitute independent human verification.
+2. A critical novelty assessment against RSI evaluation, evolutionary self-adaptation, algorithm configuration, robust testing, and causal evaluation. The new paper should be judged as an integrated audit methodology, not as a new general concentration inequality or a superior optimizer.
+3. External validity remains limited: there are two representations but only one executable task domain. A second application domain would be stronger than another seed sweep.
+4. Human authorship verification, final AI-use disclosure, and anonymous supplementary packaging before any actual submission. The public repository must not be linked as an anonymous artifact.
 
-These gates are not completed by the numerical tests. There are no fabricated human reviews, acceptance claims, or broad language-model experiments.
+The second-representation gate is now completed. No experiment in the paper is a placeholder or an invented outcome. No claim of submission, acceptance, general autonomous RSI, or completed independent human review is made.

@@ -1,0 +1,57 @@
+\section{Conditional-tree replication and independent confirmation}\label{app:trees}
+\subsection{Grammar, interpreter, and intervention}
+The tree has three feature/threshold internal nodes in breadth-first order and four leaves. Its genotype is
+\[
+ (f_0,t_0,f_1,t_1,f_2,t_2,a_0,a_1,a_2,a_3),
+ \quad f_j\in\{0,\ldots,4\},\ t_j\in\{0,\ldots,8\},\ a_j\in\{0,\ldots,23\}.
+\]
+At node $j$, compare feature $f_j$ with $t_j/8$; equality selects the right branch. After exactly two comparisons the selected leaf specifies an edit. Let $a=12u+3v+w$, where $u\in\{0,1\}$ restricts selection to active genes when one, $v\in\{0,1,2,3\}$ is a gene-type selector (3 means any type), and $w\in\{0,1,2\}$ chooses uniform replacement, modular increment, or modular decrement. Select uniformly among eligible coordinates; when that set is empty use all coordinates. This fallback is declared in advance and shared across regimes.
+
+In circuits, gene types 0, 1, and 2 denote gate operations, wires, and the output pointer. In trees they denote feature selectors, thresholds, and leaf actions. This mapping is a declared interface design choice, not a uniquely correct mapping. All tree syntax positions are eligible as active at the meta level; circuit activity is determined by its output dependency cone. The tree features are: elapsed fraction of the declared horizon; stagnation clipped at eight and divided by eight; current score in $[0,1]$; active-gene fraction; and the mean genotype value after coordinate-wise division by cardinality minus one. At the meta level, current score is mean training accuracy across tasks.
+
+The seed is $(0,2,1,4,2,4,9,9,9,9)$, whose leaves all implement uniform-coordinate random replacement. Recursive development uses the current selected tree to edit its own syntax, while fixed-author development applies the seed's editing behavior to the evolving incumbent syntax. Thus the initial proposal law is identical, and both regimes can discover better trees. Selection accepts only strict mean training-score improvement; the task-repair inner loop also accepts only strict score improvement. The original rule-table experiment instead allowed an editable neutral-acceptance option. A third baseline samples all ten tree genes independently and uniformly from their legal values.
+
+\subsection{Sampling, budgets, and protocol chronology}
+The Boolean task distribution is unchanged from the original code: six inputs, sixteen gates, nontrivial targets, and parents with five attempted corruptions on the target's active genes, rejecting functionally correct parents. Each development seed uses six training tasks with inner budget 24; every candidate including duplicates is reevaluated using fixed training randomness. Final audits use 24 fresh task--parent pairs with no shared development history. All 64 truth-table inputs are visible during inner-loop selection. We therefore test transfer across tasks, not generalization from hidden truth-table inputs.
+
+For family index $f$ and run index $i$, five independent NumPy streams are spawned from \texttt{SeedSequence([master, f, i])}. They generate training tasks, audit tasks, training search randomness, meta-level randomness, and audit search randomness. Methods share the same appropriate random-input arrays, but never mutable state. Within a seed set, outcomes are paired, not independent; seed sets are the sampling units.
+
+The exploratory protocol uses master seed 682719, 2,048 runs per family, development checkpoints 16 and 64, and audit budgets 16 and 64. The grammar and primary cell $(64,64)$ were fixed before these outcomes. The confirmation uses new master seed 682720, 4,096 runs per family, and only $(64,64)$. Confirmation was selected after the exploratory findings, with no change to grammar, seed policy, task family, optimization, or selection. Both protocols were committed before their respective outcomes; neither is described as external preregistration. Confidence families are separate across studies, and initial outcomes are not pooled into confirmation.
+
+The tree's time feature makes the declared horizon part of the algorithm. Accordingly every audit budget is a separate restart, with identical random numbers used only for coupling. The exploratory development checkpoint at 16 is a prefix of a 64-step development schedule, not a separately re-timed 16-step algorithm. The main confirmation fixes both horizons at 64. All local methods have identical charged evaluation counts; control-flow and random-generation instruction costs need not coincide. Uniform whole-program search changes more syntax per proposal but pays the same candidate evaluation cost; this stronger baseline is disclosed rather than hidden.
+
+\subsection{Primary outcomes and inferential units}
+Each stored primary score is an integer sum over $24\times64=1,536$ correct truth-table outputs. Dividing the within-seed recursive-minus-fixed difference by 1,536 gives $Z_i\in[-1,1]$. The primary empirical Bernstein interval is Proposition~\ref{prop:certificate} with $n=4,096$, $J=3$, and $\delta=.05$. Nine seed-relative gains use a separate $J=9$ family. These are finite-sample simultaneous bounds, not normal approximations or bounds treating all outputs as independent. An additional, more conservative sensitivity check places all twelve confirmation contrasts in a single $J=12$ family; all three negative dividends and all nine positive seed gains retain their signs. This is not substituted for the originally specified primary intervals.
+
+\begin{table}[h]
+\centering
+\caption{Conditional-tree confirmation seed gains in percentage points. All nine intervals share a separate simultaneous 95\% guarantee.}
+\input{trees_gains_table}
+\end{table}
+
+The exploratory primary dividends were $-1.779$, $-1.298$, and $-1.486$ percentage points (mixed, XOR-heavy, logic-heavy). Their respective simultaneous intervals were $[-3.352,-.207]$, $[-2.847,.251]$, and $[-3.069,.096]$. Only the mixed interval excluded zero. In the independent confirmation, all three primary dividend intervals exclude zero (Table~\ref{tab:trees}). The absolute mean released accuracies for recursive, fixed-author, random, and seed policies are, respectively: mixed $(.76738,.78237,.79742,.73457)$; XOR-heavy $(.69076,.70412,.72084,.66184)$; logic-heavy $(.80529,.82191,.83758,.76780)$.
+
+\begin{figure}[h]
+\centering\includegraphics[width=.88\linewidth]{figures/tree_dividend.pdf}
+\caption{Conditional-tree recursion dividends. Exploratory and independently confirmed estimates are displayed separately; error bars use the finite-sample simultaneous bounds within each study.}
+\end{figure}
+
+Post-hoc confirmation traces show that inherited authors make approximately 36--37 condition-changing proposals and 22--23 leaf-changing proposals per 64-step run, compared with 32--33 and 24--25 for fixed authors. They accept fewer improvements. These counts describe trajectories after the authorship intervention. Without additional mediator interventions, they do not prove that condition-edit preference caused the negative dividend. Whole-tree random search frequently changes both kinds of syntax; its diagnostic counts need not sum to the proposal count.
+
+\subsection{Implementation checks and reproducibility}
+The implementation includes independent scalar decision-tree traversal, a separately written unpacked Boolean evaluator and whole task-repair reference, typed mutation and input-immutability checks, deterministic replay, first-generation equality, strict selection monotonicity, no-op accounting, and exact per-budget restart tests. An extracted Boolean core is checked against the unchanged original task generator on all three families. These checks validate the stated software behavior, not the soundness of every scientific inference.
+
+The initial tree execution used a local equivalent copy of the Boolean functions; before confirmation these functions were isolated into \texttt{src/boolean\_core.py} without changing task semantics. The first eight exploratory seed sets per family replayed bitwise across all recorded arrays after this import refactor. Exact executed initial sources, hashes, and the replay report are preserved. Confirmation hashes refer directly to the final factored implementation. The initial and confirmation executions took approximately 156 and 260 seconds, respectively, in the recorded single-process environment, including JIT compilation. These measurements are not runtime promises.
+
+Commands to reproduce the separate studies are:
+\begin{verbatim}
+python scripts/run_trees.py --protocol protocol_trees.json \
+  --output results/trees
+python scripts/run_trees.py \
+  --protocol protocol_trees_confirmation.json \
+  --output results/trees_confirmation
+python scripts/analyze_trees.py \
+  --results results/trees_confirmation
+python scripts/verify_trees.py
+\end{verbatim}
+The runner refuses to overwrite existing raw results. A full research archive contains integer per-development outcomes, all selected policies, training scores, acceptance counts, diagnostics, metadata, and source hashes. Repository summaries include exact integer sufficient statistics so the primary confidence bounds can also be checked without rerunning search. Initial and confirmation arrays remain separate. This second representation strengthens implementation diversity but is not a second application domain.
